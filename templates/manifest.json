@@ -1,0 +1,8 @@
+{
+  "id": "my-app",
+  "name": "My App",
+  "description": "Generated App",
+  "author": {
+    "name": "Ali"
+  }
+}
