@@ -8,56 +8,102 @@ AI-powered CLI tool to generate, test, and scaffold Rocket.Chat Apps using LLMs.
 
 * ⚡ Generate Rocket.Chat app structure instantly
 * 🧠 Interactive CLI prompts
+* 🤖 AI-powered app generation (`--ai`)
 * 📦 Dynamic template generation
-* 🔜 AI-powered app generation (coming soon)
+* ⚙️ Automatic command file creation
 
 ---
 
 ## 📦 Installation
 
+```bash
 git clone https://github.com/sarim-aliii/rocket-chat-ai-cli.git
 cd rocket-chat-ai-cli
 npm install
 npm run build
 npm link
+```
 
 ---
 
 ## 🚀 Usage
 
-### Create App (Interactive)
+### 1. Interactive Mode
 
+```bash
 create-rc-app my-app
+```
+
+👉 Prompts user for:
+
+* Description
+* Author
 
 ---
 
-## 📁 Generated Structure
+### 2. AI Mode 🤖
 
-my-app/
+```bash
+create-rc-app task-manager --ai
+```
+
+👉 Automatically generates:
+
+* App description
+* Command structure
+
+---
+
+## 📁 Example Output
+
+```text
+task-manager/
 ├── manifest.json
 ├── App.ts
-
----
-
-## 🧠 Future Scope
-
-* 🤖 AI-based app generation
-* ⚙️ Command + API auto-generation
-* 🧪 Automated test generation
-* 🔁 Incremental app updates
-
----
-
-## 🎯 GSoC 2026
-
-This project is being developed as part of a GSoC proposal for Rocket.Chat.
+├── commands/
+│   ├── create-task.ts
+│   ├── list-task.ts
+```
 
 ---
 
 ## 🎥 Demo
 
-create-rc-app my-app
-✔ App created successfully
+```bash
+create-rc-app task-manager --ai
+
+✔ Generating Rocket.Chat app...
+✔ AI generating structure...
+✔ App 'task-manager' created successfully!
+```
+
+---
+
+## 🧠 How It Works
+
+* Uses LLM (Gemini API) to generate structured JSON
+* Parses AI output into:
+
+  * Description
+  * Commands
+* Dynamically creates files based on AI response
+
+---
+
+## 🎯 GSoC 2026
+
+This project is being developed as part of a Google Summer of Code proposal for Rocket.Chat.
+
+---
+
+## 🔮 Future Scope
+
+* AI-generated API handlers
+* Full test suite generation
+* Incremental updates (`update app with feature`)
+* Multi-model support (OpenAI, Claude)
+
+---
 
 ## 👨‍💻 Author
 

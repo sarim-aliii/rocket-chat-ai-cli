@@ -3,15 +3,82 @@ import * as path from "path";
 import inquirer from "inquirer";
 import chalk from "chalk";
 import ora from "ora";
+import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export async function createApp(name: string) {
+dotenv.config();
+
+export async function createApp(name: string, useAI = false) {
   try {
-    // ✅ 1. Validate app name
+    // ✅ 1. Validate name
     if (!/^[a-z0-9-]+$/.test(name)) {
       console.log(
         chalk.red("❌ Invalid name. Use lowercase letters, numbers, hyphens only.")
       );
       return;
+    }
+
+    let description = "My Rocket.Chat App";
+    let author = "Ali";
+    let commands: string[] = [];
+
+    // ✅ 2. AI MODE (SAFE + FALLBACK)
+    if (useAI) {
+      try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+        const model = genAI.getGenerativeModel({
+          model: "models/gemini-1.5-flash-latest", // ✅ safest working model
+        });
+
+        const prompt = `
+You are a developer assistant.
+
+Generate JSON for a Rocket.Chat app.
+
+App name: ${name}
+
+Return ONLY valid JSON:
+{
+  "description": "...",
+  "commands": ["command1", "command2"]
+}
+`;
+
+        const result = await model.generateContent(prompt);
+        let text = result.response.text();
+
+        // ✅ Clean markdown if AI wraps output
+        text = text.replace(/```json|```/g, "").trim();
+
+        const parsed = JSON.parse(text);
+
+        description = parsed.description || description;
+        commands = parsed.commands || [];
+      } catch (err) {
+        console.log(chalk.yellow("⚠️ AI failed, falling back to manual input"));
+      }
+    }
+
+    // ✅ 3. FALLBACK (manual input if AI fails or disabled)
+    if (!useAI || description === "My Rocket.Chat App") {
+      const answers = await inquirer.prompt([
+        {
+          type: "input",
+          name: "description",
+          message: "Enter app description:",
+          default: description,
+        },
+        {
+          type: "input",
+          name: "author",
+          message: "Enter author name:",
+          default: author,
+        },
+      ]);
+
+      description = answers.description;
+      author = answers.author;
     }
 
     const folder = path.join(process.cwd(), name);
@@ -21,32 +88,15 @@ export async function createApp(name: string) {
       return;
     }
 
-    // ✅ 2. Ask user input
-    const answers = await inquirer.prompt([
-      {
-        type: "input",
-        name: "description",
-        message: "Enter app description:",
-        default: "My Rocket.Chat App",
-      },
-      {
-        type: "input",
-        name: "author",
-        message: "Enter author name:",
-        default: "Ali",
-      },
-    ]);
-
     const spinner = ora("Creating app...").start();
 
-    // ✅ 3. Create folder
+    // ✅ 4. File operations
     await fs.mkdir(folder);
 
-    // ✅ 4. Copy templates
     const templatePath = path.resolve(__dirname, "../templates");
     await fs.copy(templatePath, folder);
 
-    // ✅ 5. Replace values (clean way)
+    // ✅ 5. Replace values
     const manifestPath = path.join(folder, "manifest.json");
 
     let manifest = await fs.readFile(manifestPath, "utf-8");
@@ -54,8 +104,8 @@ export async function createApp(name: string) {
     const replacements: Record<string, string> = {
       "my-app": name,
       "My App": name,
-      "Generated App": answers.description,
-      "Ali": answers.author,
+      "Generated App": description,
+      "Ali": author,
     };
 
     for (const key in replacements) {
@@ -65,7 +115,35 @@ export async function createApp(name: string) {
 
     await fs.writeFile(manifestPath, manifest);
 
-    spinner.succeed(chalk.green(`✅ App '${name}' created successfully!`));
+    // ✅ 6. Generate command files
+    if (commands.length > 0) {
+      const commandsDir = path.join(folder, "commands");
+      await fs.mkdir(commandsDir);
+
+      for (const cmd of commands) {
+        const className = cmd
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join("");
+
+        const fileContent = `
+export class ${className}Command {
+  execute() {
+    console.log("${cmd} executed");
+  }
+}
+`;
+
+        await fs.writeFile(
+          path.join(commandsDir, `${cmd}.ts`),
+          fileContent
+        );
+      }
+    }
+
+    spinner.succeed(
+      chalk.green(`✅ App '${name}' created successfully!`)
+    );
   } catch (error) {
     console.error(chalk.red("❌ Error creating app:"), error);
   }
