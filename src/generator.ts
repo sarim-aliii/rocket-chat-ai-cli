@@ -28,7 +28,7 @@ export async function createApp(name: string, useAI = false) {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
         const model = genAI.getGenerativeModel({
-          model: "models/gemini-1.5-flash-latest", // ✅ safest working model
+          model: "models/gemini-2.5-flash",
         });
 
         const prompt = `

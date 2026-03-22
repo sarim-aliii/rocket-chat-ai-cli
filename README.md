@@ -16,13 +16,11 @@ AI-powered CLI tool to generate, test, and scaffold Rocket.Chat Apps using LLMs.
 
 ## 📦 Installation
 
-```bash
 git clone https://github.com/sarim-aliii/rocket-chat-ai-cli.git
 cd rocket-chat-ai-cli
 npm install
 npm run build
 npm link
-```
 
 ---
 
@@ -30,9 +28,7 @@ npm link
 
 ### 1. Interactive Mode
 
-```bash
 create-rc-app my-app
-```
 
 👉 Prompts user for:
 
@@ -43,9 +39,7 @@ create-rc-app my-app
 
 ### 2. AI Mode 🤖
 
-```bash
 create-rc-app task-manager --ai
-```
 
 👉 Automatically generates:
 
@@ -56,26 +50,23 @@ create-rc-app task-manager --ai
 
 ## 📁 Example Output
 
-```text
 task-manager/
 ├── manifest.json
 ├── App.ts
 ├── commands/
 │   ├── create-task.ts
 │   ├── list-task.ts
-```
 
 ---
 
 ## 🎥 Demo
 
-```bash
 create-rc-app task-manager --ai
 
 ✔ Generating Rocket.Chat app...
 ✔ AI generating structure...
 ✔ App 'task-manager' created successfully!
-```
+
 
 ---
 
